@@ -12,7 +12,6 @@ from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 import import_ipynb
-from Functions import *
 
 # 1. Read data:
 df = pd.read_csv('data_Foody.csv')
