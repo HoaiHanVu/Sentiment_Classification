@@ -4,18 +4,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
+from sklearn.metrics import confusion_matrix, classification_report, precision_recall_curve
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import load_model
 import import_ipynb
 from Lib import Functions as fc
 
@@ -41,80 +36,31 @@ X = df.iloc[:, 2]
 y = df.iloc[:, -1]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 42)
 
-vocab_size = 1200
-max_length = 150
-embedding_dim = 64
-oov_tok = '<OOV>'
-padding_type = 'post'
-trunc_type = 'post'
-
-tokenizer = Tokenizer(num_words = vocab_size, oov_token = oov_tok)
-tokenizer.fit_on_texts(X_train)
-word_index = tokenizer.word_index
-
-train_sequence = tokenizer.texts_to_sequences(X_train)
-train_padded = pad_sequences(train_sequence, maxlen = max_length, padding = padding_type, truncating = trunc_type)
-
-valid_sequence = tokenizer.texts_to_sequences(X_test)
-valid_padded = pad_sequences(valid_sequence, maxlen = max_length, padding = padding_type, truncating = trunc_type)
 
 cv = CountVectorizer()
 X_train_cv = cv.fit_transform(X_train)
 X_test_cv = cv.transform(X_test)
 
 # 3. Build model
-# tf.keras.backend.clear_session()
-# model = tf.keras.models.Sequential([
-#     tf.keras.layers.Embedding(vocab_size, embedding_dim, input_length = max_length),
-#     tf.keras.layers.Conv1D(32, 3, activation = 'relu'),
-#     tf.keras.layers.MaxPooling1D(pool_size = 2, strides = 1),
-#     tf.keras.layers.Flatten(),
-#     tf.keras.layers.Dropout(0.5),
-#     tf.keras.layers.Dense(32, activation = 'elu', kernel_initializer = 'he_normal'),
-#     tf.keras.layers.Dense(24, activation = 'elu', kernel_initializer = 'he_normal'),
-#     tf.keras.layers.Dense(16, activation = 'elu', kernel_initializer = 'he_normal'),
-#     tf.keras.layers.Dense(1, activation = 'sigmoid')
-# ])
 
-# model.compile(loss = 'binary_crossentropy',
-#               optimizer = 'adam',
-#               metrics = ['accuracy'])
-
-# history = model.fit(train_padded, y_train,
-#                     validation_data = (valid_padded, y_test),
-#                     epochs = 150,
-#                     verbose = 2)
-# df_his = pd.DataFrame(history.history)
-
-# yhat = model.predict(valid_padded)
-# yhat = np.round(yhat).reshape(-1)
-
-# cr = classification_report(y_test, yhat)
+logit = LogisticRegression(random_state = 42)
+model = logit.fit(X_train_cv, y_train)
 
 # 4. Load model & evaluate:
 
-classifier = load_model('Foody_review_analysis.h5')
-stringlist = []
-classifier.summary(print_fn=lambda x: stringlist.append(x))
-short_model_summary = "\n".join(stringlist)
+train_eval = model.score(X_train_cv, y_train)
+test_eval = model.score(X_test_cv, y_test)
+report = classification_report(y_test, model.predict(X_test_cv))
+conf_matrix = confusion_matrix(y_test, model.predict(X_test_cv))
 
-yhat = classifier.predict(valid_padded)
-yhat = np.round(yhat).reshape(-1)
-
-df_his = pd.read_csv('model_history.csv')
-train_eval = classifier.evaluate(train_padded, y_train)
-test_eval = classifier.evaluate(valid_padded, y_test)
-
-report = classification_report(y_test, yhat)
-conf_matrix = confusion_matrix(y_test, yhat)
-
-def predict_review(text):
-    new_sequence = tokenizer.texts_to_sequences(text)
-    new_padded = pad_sequences(new_sequence,
-                               padding = padding_type,
-                               truncating = trunc_type,
-                               maxlen = max_length)
-    return new_padded
+y_score = cross_val_predict(model, X_test_cv, y_test, cv = 3, method = 'decision_function')
+precisions, recalls, thresholds = precision_recall_curve(y_test, y_score)
+def plot_precision_vs_recall(precisions, recalls):
+    plt.plot(recalls, precisions, "b-", linewidth=2)
+    plt.xlabel("Recall", fontsize=16)
+    plt.ylabel("Precision", fontsize=16)
+    plt.axis([0, 1, 0, 1])
+    plt.grid(True)
 
 
 
@@ -150,36 +96,32 @@ if choice == 'Business Objective':
 elif choice == 'Build Project':
     st.subheader('Build Project')
     st.write('#### 1. Model Summary')
-    st.code(short_model_summary)
+    st.write(""" Using Logistic Regression Algorithm to build classify model.""")
     st.write('#### 2. Model Evaluation: ')
     st.write('##### Training history: ')
-    st.dataframe(df_his.iloc[:, 1:].tail(5))
     st.write('##### Train Score: ')
-    st.code(' - Accuracy: ' + str(np.round(train_eval[1], 3)))
-    st.code(' - Loss: ' + str(np.round(train_eval[0], 3)))
+    st.code(' - Accuracy: ' + str(np.round(train_eval, 3)))
     st.write('##### Valid Score: ')
-    st.code(' - Accuracy: ' + str(np.round(test_eval[1], 3)))
-    st.code(' - Loss: ' + str(np.round(test_eval[0], 3)))
+    st.code(' - Accuracy: ' + str(np.round(test_eval, 3)))
     st.write('##### Classification Report: ')
     st.code(report)
     st.write('##### Confusion Matrix: ')
     st.code(conf_matrix)
 
-    st.write('#### Loss value during training.')
+    st.write('#### Precision and Recall for each Threshold: ')
     plt.figure(figsize=(10, 6))
-    fig3 = df_his.loc[:, ['loss', 'val_loss']].plot(figsize=(10, 6))
-    plt.xlabel('Epochs')
-    plt.ylabel('Values')
-    plt.grid(True)
-    st.pyplot(fig3.figure)
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    st.pyplot(fc.plot_precision_recall_curve(model, X_test_cv, y_test, cv = 3))
 
-    st.write('#### Accuracy score during training.')
+    st.write('#### Precision and Recall: ')
+    st.pyplot(plot_precision_vs_recall(precisions, recalls))
+
+    st.write('#### ROC curve of class `1`: ')
     plt.figure(figsize=(10, 6))
-    fig3 = df_his.loc[:, ['accuracy', 'val_accuracy']].plot(figsize=(10, 6))
-    plt.xlabel('Epochs')
-    plt.ylabel('Values')
-    plt.grid(True)
-    st.pyplot(fig3.figure)
+    st.pyplot(fc.ROC_curve_display(model, X_test_cv, y_test, 1))
+    st.write('#### ROC curve of class `0`: ')
+    plt.figure(figsize=(10, 6))
+    st.pyplot(fc.ROC_curve_display(model, X_test_cv, y_test, 0))
 
 elif choice == 'New Prediction':
     st.subheader('Select data')
@@ -202,14 +144,20 @@ elif choice == 'New Prediction':
         st.write('Content: ')
         if len(lines) > 0:
             st.code(lines)
-            x_new = predict_review(lines)
-            y_pred_new = np.argmax(classifier.predict(x_new), axis = -1)
+            x_new = cv.transform(lines)
+            y_pred_new = model.predict(x_new)
             for x in y_pred_new:
                 if x == 0:
                     st.code('Class 0 - This is Negative review.')
                 else:
                     st.code('Class 1 - This is Positive review.')
             
+
+    
+
+
+    
+
 
     
 
