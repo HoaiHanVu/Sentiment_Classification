@@ -12,7 +12,7 @@ from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 import import_ipynb
-import Functions as fc
+from Functions import *
 
 # 1. Read data:
 df = pd.read_csv('data_Foody.csv')
@@ -111,17 +111,17 @@ elif choice == 'Build Project':
     st.write('#### Precision and Recall for each Threshold: ')
     plt.figure(figsize=(10, 6))
     st.set_option('deprecation.showPyplotGlobalUse', False)
-    st.pyplot(fc.plot_precision_recall_curve(model, X_test_cv, y_test, cv = 3))
+    st.pyplot(plot_precision_recall_curve(model, X_test_cv, y_test, cv = 3))
 
     st.write('#### Precision and Recall: ')
     st.pyplot(plot_precision_vs_recall(precisions, recalls))
 
     st.write('#### ROC curve of class `1`: ')
     plt.figure(figsize=(10, 6))
-    st.pyplot(fc.ROC_curve_display(model, X_test_cv, y_test, 1))
+    st.pyplot(ROC_curve_display(model, X_test_cv, y_test, 1))
     st.write('#### ROC curve of class `0`: ')
     plt.figure(figsize=(10, 6))
-    st.pyplot(fc.ROC_curve_display(model, X_test_cv, y_test, 0))
+    st.pyplot(ROC_curve_display(model, X_test_cv, y_test, 0))
 
 elif choice == 'New Prediction':
     st.subheader('Select data')
