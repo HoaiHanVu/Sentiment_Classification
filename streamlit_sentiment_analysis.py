@@ -61,7 +61,32 @@ def plot_precision_vs_recall(precisions, recalls):
     plt.ylabel("Precision", fontsize=16)
     plt.axis([0, 1, 0, 1])
     plt.grid(True)
-
+    
+def plot_precision_recall_curve(model, X, y, cv):
+    y_scores = cross_val_predict(model, X, y, cv=cv, method = 'decision_function')
+    precisions, recalls, thresholds = precision_recall_curve(y, y_scores)
+    plt.figure(figsize=(10, 6))
+    plt.plot(thresholds, precisions[:-1], 'g--', label = 'Precision')
+    plt.plot(thresholds, recalls[:-1], 'b--', label = 'Recall')
+    plt.legend(fontsize = 15)
+    plt.grid(True)
+    plt.xlabel('Thresholds', fontsize = 15)
+    plt.title('Precision & Recall by threshold', color = 'red', fontsize = 18)
+    plt.show()
+    
+def ROC_curve_display(model, X, y, pred):
+    yhat_proba = model.predict_proba(X)
+    print('* Area below the curve: {}'.format(round(roc_auc_score(y, yhat_proba[:, pred]), 5)))
+    print()
+    fpr, tpr, thresholds = roc_curve(y, yhat_proba[:, pred])
+    plt.figure(figsize=(10, 6))
+    plt.plot([0, 1], [0, 1], 'r--')
+    plt.plot(fpr, tpr, marker = '.')
+    plt.xlabel('False Possitve Rate', fontsize = 15)
+    plt.ylabel('True Possitive Rate', fontsize = 15)
+    plt.title('ROC Curve of Predict class {}'.format(pred), fontsize = 18)
+    plt.grid(True)
+    plt.show()
 
 
 # 5. GUI:
