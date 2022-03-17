@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
-from sklearn.metrics import confusion_matrix, classification_report, precision_recall_curve
+from sklearn.metrics import confusion_matrix, classification_report, precision_recall_curve, accuracy_score, roc_auc_score, roc_curve
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
