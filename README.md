@@ -1,13 +1,15 @@
-# Sentiment Classification with Traditional ML Models and 1D Convolution Network
+# Sentiment Classification with Traditional ML Models and 1D Convolution Network, Deployed with Streamlit
 ## Introduction
 
-This repository focuses on sentiment classification for Vietnamese language using both traditional machine learning models and a 1D Convolutional Neural Network (CNN). The goal is to classify customer comments about restaurants on the Foody restaurant review website. The model's performance has been evaluated, with a significant improvement observed in service quality as the omission rate for negative comments reduced to only 20%.
+This project aims to address the challenges of Vietnamese language processing by classifying customer comments about restaurants on the Foody restaurant review website. We have developed a model that utilizes both traditional machine learning models and a 1D Convolutional Neural Network (CNN) for sentiment classification. The deep learning network has demonstrated excellent performance, achieving an impressive omission rate of only 20% for negative comments. This has greatly aided restaurants in enhancing their service quality.
+
+
 
 ## Features
 
-- Traditional ML Models: The repository includes implementation of traditional machine learning models, which offer a different approach to sentiment classification for Vietnamese language.
-- 1D Convolutional Neural Network: Additionally, a 1D CNN model has been built to tackle the sentiment classification task. This deep learning approach has shown promising results in accurately predicting sentiments.
-- Improved Service Quality: The project's ultimate objective is to enhance restaurant service quality by effectively identifying and addressing negative customer feedback.
+- Traditional ML Models: Our repository includes the implementation of traditional machine learning models tailored for sentiment classification in Vietnamese text.
+- 1D Convolutional Neural Network: Additionally, a 1D CNN model has been built to leverage deep learning techniques for accurate sentiment prediction.
+- Streamlit Deployment: We have utilized Streamlit to deploy the sentiment classification model as a user-friendly web application. This allows users to easily input Vietnamese customer comments and receive sentiment classifications in real-time.
 
 ## Insights
 
@@ -15,10 +17,10 @@ During the course of this project, an important realization was made regarding t
 
 ## Usage
 
-1. Clone the repository to your local machine (will be updated soon).
-2. Review the provided code and models for sentiment classification.
-3. Use the traditional ML models or the 1D CNN model to classify sentiments in Vietnamese customer comments.
-4. Explore and modify the code as needed for your own sentiment classification tasks.
+- Review the provided code and models for sentiment classification.
+- Install the necessary dependencies, including Streamlit, to run the application.
+- Deploy the sentiment classification model using Streamlit by running the corresponding script.
+- Access the web application through the provided URL, input customer comments, and receive sentiment classifications instantly.
 
 
 ## License
